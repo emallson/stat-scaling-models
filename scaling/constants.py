@@ -22,7 +22,7 @@ TOTAL_AT_BASE = {
     'stamina': 39665,
     'primary': 12324,
     'armor': 4696,
-    'secondaries': 1613 + 1287 + 826 + 1940
+    'secondaries': 1613 + 1287 + 826 + 1940 - 200 - 120 # removing ring enchants + sockets from this
 }
 
 # Secondary stat linearization multipliers
