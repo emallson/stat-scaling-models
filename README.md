@@ -5,7 +5,7 @@ secondary stat models, along with a very basic damage model.
 
 
 | Model | Secondary Scaling Type | DRs? |
------------------------------------------
+|-------|------------------------|------|
 | Legion | Exponential | No |
 | BFA | Linear | No |
 | Shadowlands | Linear | Yes |
