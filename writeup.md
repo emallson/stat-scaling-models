@@ -236,8 +236,8 @@ for players to explore the game and how the different pieces interact---a key
 part (IMO) of the CRPG experience.
 
 Every time a new system is introduced that is described nowhere in game, that
-has no discernable impact unless you know what to look for, and that has
-potentially major impacts on player decisions should need *strong*
+almost never has a discernable impact unless you know what to look for, and that
+has potentially major impacts on player decisions should need *strong*
 justifications to be added to the game. I don't see how the secondary DR system
 satisfies these conditions, given that all it can really do (absent a return of
 corruption) is screw over people that equip two big stat proc trinkets.
