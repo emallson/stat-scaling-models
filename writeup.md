@@ -225,7 +225,7 @@ to secondary stats doesn't appear to solve a problem. It doesn't meaningfully
 change the decision-making process for evaluating gear. In fact, the only
 scenarios I can think of where the DRs would actually change things are: (1) a
 return of stat amp corruption (please, for the love of god, do **not** do
-this!), or (2) stacking items that give very large procs of single secondary
+this!), or (2) stacking items that give very large procs of a single secondary
 stat.
 
 On the other hand, there are very real downsides to introducing yet another
