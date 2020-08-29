@@ -109,7 +109,7 @@ The next question, then, is how to determine the stats in use. That process goes
 4. Calculate `Avg Damage` using those stats. This is the *baseline damage.*
 5. Pick an ilvl and stat breakdown for a new item.
 6. Generate the stats for that item using the model.
-7. Calculate `Avg Damage` using the *base stats* plus the *item stats*. This is the *upgraded damage.*
+7. Calculate `Avg Damage` using the *base stats* plus the *item stats* minus the stats of the old item in that slot. This is the *upgraded damage.*
 8. Calculate the *value of the upgrade* with `upgraded damage - baseline damage`
 
 We can repeat this process with different items at different ilvls and stat
