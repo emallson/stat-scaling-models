@@ -207,7 +207,7 @@ Interestingly, when you reduce the ilvl gap between items the problem appears
 again under all models. Note that this only occurs in practice due to
 Warforging, which indicates that the frequency with which people dropped ilvls
 for better stats in *Legion* and *BFA* may, in fact, be a byproduct of the
-Warforging/Titanforging system giving use many items with small gaps between
+Warforging/Titanforging system giving us many items with small gaps between
 them.
 
 ![Bracers, Skew Both, Reduced Penalty Range](./results/bracers_skewed-slight_both_reduced-penalty.png)
