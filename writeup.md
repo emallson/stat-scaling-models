@@ -190,7 +190,7 @@ released, and inside you can find rings that would seem out-of-place in modern
 WoW. Why? Well, they have primary stat on them. In fact, rings in Warlords (and
 possibly prior, this is hard to tell) were identically scaled to bracers now. As
 a result, we can check what the results look like for bracers and see how things
-would behave if the WoD change (removing mainstat from rings) were reverted:
+would behave if the Legion change (removing mainstat from rings) were reverted:
 
 ![Bracers, Slight Skew Both](./results/bracers_skewed-slight_both.png)
 
@@ -255,4 +255,4 @@ perhaps could be part of 10.0.
 The code for the charts presented in this post can be found at on [emallson's
 GitHub](https://github.com/emallson/stat-scaling-models). emallson is a theorycrafter
 for Brewmaster Monks, writes for Peak of Serenity, and maintains the WoWAnalyzer
-code for Brewmasters.
+code for Brewmasters. emallson is currently wearing a 440 ring from *Battle of Dazar'alor* in his main set, with multiple 475 rings rotting in his bags.
