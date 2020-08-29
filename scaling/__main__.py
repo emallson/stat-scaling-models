@@ -1,35 +1,72 @@
 #!/usr/bin/env python3
-from scaling.plotting import build_eval_plot
+from scaling.plotting import build_eval_plot, plot_should_you_equip
 from scaling.constants import SCALARS
 from scaling import bfa, legion
 from plotnine import ggtitle
 import os
 
 ilvls = [385, 415, 445, 475]
+penalties = [-30, -15, 0, 15, 30]
 systems = {
-    'shadowlands': [bfa, 1],
-    'bfa': [bfa, 0],
-    'legion': [legion, 0],
+    'Shadowlands': [bfa, 1],
+    'BFA': [bfa, 0],
+    'Legion': [legion, 0],
 }
 
-for ilvl in ilvls:
-    for slot in SCALARS.keys():
-        (build_eval_plot(systems,
-                        [1, 1, 1, 1],
-                        ilvl, [0.25, 0.25, 0.25, 0.25],
-                        slot) + ggtitle(f'Even Secondary Values, Even Stat Distribution (Slot: {slot}, ilvl: {ilvl})')).save(f'results/{ilvl}_{slot}_even.png')
+slot_names = {
+    'main': 'A Chestpiece',
+    'off': 'Some Boots',
+    'bracers': 'Some Bracers',
+    'ring': 'A Ring'
+}
 
-        (build_eval_plot(systems,
-                        [1, 1, 1, 1],
-                        ilvl, [0.35, 0.3, 0.2, 0.15],
-                        slot) + ggtitle(f'Even Secondary Values, Skewed Stat Distribution (Slot: {slot}, ilvl: {ilvl})')).save(f'results/{ilvl}_{slot}_skewed_stats.png')
+title_format = '{} just dropped! Should You Equip It?\n\n{}'
 
-        (build_eval_plot(systems,
-                        [1, 0.8, 0.6, 0.2],
-                        ilvl, [0.25, 0.25, 0.25, 0.25],
-                        slot) + ggtitle(f'Skewed Secondary Values, Even Stat Distribution (Slot: {slot}, ilvl: {ilvl})')).save(f'results/{ilvl}_{slot}_skewed_secondaries.png')
+for slot in SCALARS.keys():
+    (build_eval_plot(systems, ilvls,
+                     plot_should_you_equip,
+                    [1, 1, 1, 1],
+                    [0.25, 0.25, 0.25, 0.25],
+                     slot,
+                     penalties) + ggtitle(title_format.format(slot_names[slot],
+                                                              'Your gear has balanced stats, and each stat is equally valuable.'))).save(f'results/{slot}_even.png')
 
-        (build_eval_plot(systems,
-                        [1, 0.8, 0.6, 0.2],
-                        ilvl, [0.35, 0.3, 0.2, 0.15],
-                        slot) + ggtitle(f'Skewed Secondary Values, Skewed Stat Distribution (Slot: {slot}, ilvl: {ilvl})')).save(f'results/{ilvl}_{slot}_skewed_both.png')
+    (build_eval_plot(systems, ilvls,
+                     plot_should_you_equip,
+                    [1, 1, 1, 1],
+                    [0.35, 0.3, 0.2, 0.15],
+                     slot,
+                     penalties) + ggtitle(title_format.format(slot_names[slot],
+                                                              'Your gear is skewed towards Crit/Haste, but each stat is equally valuable.'))).save(f'results/{slot}_skewed_stats.png')
+
+    (build_eval_plot(systems, ilvls,
+                     plot_should_you_equip,
+                    [1, 0.8, 0.6, 0.5],
+                    [0.25, 0.25, 0.25, 0.25],
+                     slot,
+                     penalties) + ggtitle(title_format.format(slot_names[slot],
+                                                              'Your gear has balanced stats, but Crit/Haste are worth more than Mastery/Vers.'))).save(f'results/{slot}_skewed_secondaries.png')
+
+    (build_eval_plot(systems, ilvls,
+                     plot_should_you_equip,
+                    [1, 0.8, 0.6, 0.5],
+                    [0.35, 0.3, 0.2, 0.15],
+                     slot,
+                     penalties) + ggtitle(title_format.format(slot_names[slot],
+                                                              'Your gear is skewed towards Crit/Haste, and Crit/Haste are worth more than Mastery/Vers.'))).save(f'results/{slot}_skewed_both.png')
+
+    (build_eval_plot(systems, ilvls,
+                     plot_should_you_equip,
+                    [1, 0.9, 0.8, 0.6],
+                    [0.25, 0.25, 0.25, 0.25],
+                     slot,
+                     penalties) + ggtitle(title_format.format(slot_names[slot],
+                                                              'Your gear has balanced stats, but Crit/Haste are worth *slightly* more than Mastery/Vers.'))).save(f'results/{slot}_skewed-slight_secondaries.png')
+
+    (build_eval_plot(systems, ilvls,
+                     plot_should_you_equip,
+                    [1, 0.9, 0.8, 0.6],
+                    [0.35, 0.3, 0.2, 0.15],
+                     slot,
+                     penalties) + ggtitle(title_format.format(slot_names[slot],
+                                                              'Your gear is skewed towards Crit/Haste, and Crit/Haste are worth *slightly* more than Mastery/Vers.'))).save(f'results/{slot}_skewed-slight_both.png')

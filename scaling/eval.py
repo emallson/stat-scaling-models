@@ -11,7 +11,7 @@ settings = {
 }
 
 
-def evaluate_point(module, with_dr, pct_dist, avg_ilvl, avg_stat_dist, slot_type):
+def evaluate_point(module, with_dr, avg_ilvl, pct_dist, avg_stat_dist, slot_type, penalties=[5, 0, -5]):
     """Evaluate the different settings at this point, using `module` to
     calculate stats starting at `avg_ilvl` with `avg_stat_dist`."""
     base_stats = module.total_points(avg_ilvl, avg_stat_dist, 1, 1)
@@ -29,7 +29,7 @@ def evaluate_point(module, with_dr, pct_dist, avg_ilvl, avg_stat_dist, slot_type
     basic_dps = dps(base_stats[0], base_stats[1], pct_dist, with_dr,
                     *basic_stats)
 
-    basic_upgrade_stats = module.points(avg_ilvl + 5, avg_stat_dist,
+    basic_upgrade_stats = module.points(avg_ilvl + 5, [0.25, 0.25, 0.25, 0.25],
                                         SCALARS[slot_type], mainstat_included)
     basic_upgrade_dps = dps(base_stats[0], base_stats[1], pct_dist, with_dr,
                             *basic_upgrade_stats)
@@ -45,7 +45,7 @@ def evaluate_point(module, with_dr, pct_dist, avg_ilvl, avg_stat_dist, slot_type
         'improvement': False
     }]
     # now we calculate the sidegrades and downgrades with diff stat dists
-    for penalty in [0, -5]:
+    for penalty in penalties:
         for tag, prio in [('worst', stat_prio), ('best', stat_prio[::-1])]:
             for setting_tag, setting_dist in settings.items():
                 dist = np.zeros(4)
