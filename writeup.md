@@ -203,7 +203,7 @@ stats are heavily skewed!*
 ![Bracers, Skew Both](./results/bracers_skewed_both.png)
 ![Bracers, Skew Weights](./results/bracers_skewed_secondaries.png)
 
-Interestingly, when you reduce the ilvl gap between items, the problem appears
+Interestingly, when you reduce the ilvl gap between items the problem appears
 again under all models. Note that this only occurs in practice due to
 Warforging, which indicates that the frequency with which people dropped ilvls
 for better stats in *Legion* and *BFA* may, in fact, be a byproduct of the
