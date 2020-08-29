@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>writeup.html</title>
+<meta http-equiv="Content-Type" content="application/xhtml+xml;charset=utf-8"/>
+<link rel="stylesheet" type="text/css" media="all" href="https://cdn.jsdelivr.net/npm/github-markdown-css/github-markdown.min.css"  />
+<link rel="stylesheet" type="text/css" media="all" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/github.min.css"  /><meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'><style> body { box-sizing: border-box; max-width: 740px; width: 100%; margin: 40px auto; padding: 0 10px; } </style><script src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js'></script><script>document.addEventListener('DOMContentLoaded', () => { document.body.classList.add('markdown-body'); document.querySelectorAll('pre[lang] > code').forEach((code) => { code.classList.add(code.parentElement.lang); }); document.querySelectorAll('pre > code').forEach((code) => { hljs.highlightBlock(code); }); });</script>
+</head>
+
+<body>
+
+<h1>Evaluating Secondary Stat Scaling Models</h1>
+
+<p><em>Author: emallson (Eisenpelz-Turalyon NA)</em></p>
+
+<p>In <em>Battle for Azeroth,</em> Blizzard reduced the rate at which secondary stats
+scale relative to prior expansions. To the best of our understanding, this
+change was made in an attempt to eliminate (or at least limit) the scenarios
+where it was correct to equip lower item level gear to get better stats. While
+this change was mostly invisible to the average player, coming as it did during
+the ilvl squish, it has been contentious among the theorycrafting community and
+the general opinion is that it failed at this purpose.</p>
+
+<p>Recently, we discovered that Blizzard had implemented new <em>diminishing returns</em>
+on secondary stat scaling on the <em>Shadowlands</em> Beta. From my point-of-view, this
+change reflects a misunderstanding of the impact of the BFA changes as well as a
+frankly concerning willingness to layer new, opaque systems on top of an already
+notoriously opaque game.</p>
+
+<p>Nonetheless, much of my (and the wider community's) concerns are based largely
+on feelycraft, not concrete analysis. As a result, this week I put together some
+concrete  analysis on when it is valuable to drop ilvl for better stats under
+each secondary scaling model.</p>
+
+<h2>The Scaling Models</h2>
+
+<p>I considered three scaling models. Technically, there is a fourth (pre-Legion)
+that I could consider, which includes mainstat on jewelry. However, exact
+scaling data for that time period is had to get at this point so I have omitted
+it.</p>
+
+<h3>The <em>Legion</em> Model</h3>
+
+<p>During <em>Legion,</em> secondary stats scaled using the exact same formula as primary
+stats. This is an <em>exponential</em> formula, resulting in rapid stat gains as ilvl
+increases (for example: from one tier to the next).</p>
+
+<p>Conceptually: with each ilvl increase you would gain an additional <em>percentage
+of your current stats.</em> As your stats increase, the gain from adding ilvl also
+increased.</p>
+
+<h3>The <em>Battle for Azeroth</em> Model</h3>
+
+<p>The change in <em>Battle for Azeroth</em> made secondary stats scale (approximately)
+linearly.</p>
+
+<p>Conceptually, this means that with each ilvl increase you would gain a <em>fixed
+number of additional stats.</em> As your stats increase, the gain from adding ilvl
+stays constant.</p>
+
+<h3>The <em>Shadowlands</em> Model</h3>
+
+<p>The change in <em>Shadowlands</em> adds <em>diminishing returns</em> on top of the BFA model.</p>
+
+<p>Conceptually, this means that with each ilvl increase you gain a <em>fixed number
+of additional stats</em>---but if you put too many points in an individual stat, you
+effectively lose some of those points.</p>
+
+<p>With current tuning, at low ilvls this is basically equivalent to BFA: as your
+stats increase, the gain from adding ilvl stays constant. However, at higher
+ilvls it changes to: as your stats increase, the gain from adding ilvl
+<em>decreases.</em></p>
+
+<p>Part of this analysis is to give an idea of <em>when</em> that change occurs.</p>
+
+<h2>The Damage Model</h2>
+
+<p>To evaluate damage properly, we'd need to use a tool like <em>simulationcraft.</em>
+Rather than attempt to retrofit different scaling models into simc, I have
+instead opted for a simplified model that should still capture much of the
+behavior we are interested in.</p>
+
+<p>Let me begin with an example: <em>Keg Smash.</em> Keg Smash is a Brewmaster Monk
+ability which has its base damage determined by your <em>Attack Power</em> (defined as
+<code>Agility * (1 + Mastery%)</code>). Its damage scales with versatility, increasing the
+damage done per cast by <code>1 + Vers%</code>. Similarly, the average damage over many
+casts increases with your critical strike, adding a factor of <code>1 + Crit%</code> over
+the course of a fight. Lastly, the cooldown of Keg Smash is hasted, so the
+number of casts you get over the course of a fight is increased by a factor of
+<code>1 + Haste%</code>. The average damage of Keg Smash over the course of a fight is:</p>
+
+<p><code>
+number of casts * avg damage per cast = Agility * (1 + Mastery%) * (1 + Vers%) * (1 + Crit%) * (1 + Haste%)
+</code></p>
+
+<p>Not every ability scales with every stat, but this kind of scaling on key
+rotational abilities is very common. I am going to use this formula, with a
+small tweak, as a proxy for actual damage done over the course of a fight.
+Specifically:</p>
+
+<p><code>
+Avg Damage = Mainstat * (1 + MasteryValue * Mastery%) * (1 + VersValue * Vers%) * (1 + CritValue * Crit%) * (1 + HasteValue * Haste%)
+</code></p>
+
+<p>The introduction of these <code>StatValue</code> parameters lets us model specs that scale
+better or worse with particular stats. Using Brewmaster as an example again: BrM
+has a fixed rotation, and so gets very limited value from Haste. Thus,
+<code>HasteValue</code> would be close to 0. At the same time, Mastery doesn't impact any
+of the procs that BrM (and, to a lesser extent, other tanks) have come to rely
+on for damage, so it would be less valuable than either Crit or Vers.</p>
+
+<p>Then we can estimate the gain in damage done by upgrading an item by subtracting
+the <code>Avg Damage</code> for some baseline gear from the <code>Avg Damage</code> of the upgraded
+gear.</p>
+
+<p>The next question, then, is how to determine the stats in use. That process goes like this:</p>
+
+<ol>
+<li>Pick a stat scaling model. For example: the BFA model.</li>
+<li>Pick an average item level for your gear.</li>
+<li>Generate <em>base stats</em> for your gear at that ilvl using the model.</li>
+<li>Calculate <code>Avg Damage</code> using those stats. This is the <em>baseline damage.</em></li>
+<li>Pick an ilvl and stat breakdown for a new item.</li>
+<li>Generate the stats for that item using the model.</li>
+<li>Calculate <code>Avg Damage</code> using the <em>base stats</em> plus the <em>item stats</em>. This is the <em>upgraded damage.</em></li>
+<li>Calculate the <em>value of the upgrade</em> with <code>upgraded damage - baseline damage</code></li>
+</ol>
+
+<p>We can repeat this process with different items at different ilvls and stat
+breakdowns to figure out when it is valuable to drop ilvl in order to improve
+stats.</p>
+
+<h2>Results</h2>
+
+<p><img src="./results/main_even.png" alt="Chestpiece, Even Stats and Weights" title="" /></p>
+
+<p>The main question we want to answer is this: should you equip an item that just
+dropped? The chart above shows when it is beneficial to equip an item that has
+dropped with various different ilvls and stat breakdowns.</p>
+
+<p>Obviously, <em>Legion</em> didn't have raid loot dropping between 385 and 475 and
+neither will <em>Shadowlands.</em> However, since the formulas for each model are known
+we can take the "what-if" scenario for a 4-tier expansion using BFA's ilvls.</p>
+
+<p>Note that <em>most</em> items in modern WoW have two stats on them. You'll get a
+Crit/Haste piece or a Mastery/Vers piece, and only rarely a pure-Crit or
+Crit/Haste/Mastery/Vers piece. The items that are generated for this use two
+stats (either your best two or worst two) in one of several combinations.</p>
+
+<p>Your best and worst stats are determined by calculating which stats have the
+largest gain per point relative to your equipped gear. (Technically: this is
+done via automatic gradient calculation)</p>
+
+<p>For example: the top-left section of the grid uses your two best stats in a
+50/50 split. As you move right, the skew gets more extreme until you hit the 5th
+box and we switch over to items with your worst stats.</p>
+
+<p>This chart in particular shows that for each system, if you have even stats and
+balanced gear you should always take an ilvl upgrade. This is the kind of
+behavior that the devs have stated they're looking for.</p>
+
+<p>Main-slot pieces like chest and legs are fairly stable. Even with fairly large
+skew on your stats, it is virtually never valuable to drop ilvl under any model.</p>
+
+<p><img src="./results/main_skewed_both.png" alt="Chestpiece, Skewed Both" title="" /></p>
+
+<p>Interestingly, when you have heavily skewed secondary values but balanced stats,
+it <em>can</em> be worth dropping ilvl on main pieces---but only under the BFA and
+Shadowlands models.</p>
+
+<p><img src="./results/main_skewed_secondaries.png" alt="Chestpiece, Skewed Weights" title="" /></p>
+
+<p>Most specs won't have heavily skewed secondaries, though, and this effect
+dissappears with more typical skews.</p>
+
+<p>This pattern appears to remain constant on pieces that have mainstat (so:
+everything but rings---we aren't touching trinkets here).</p>
+
+<h3>The Ring Problem</h3>
+
+<p>Rings, though. Rings get <em>wild.</em></p>
+
+<p>Lets start off with an easy one: your stats are all equally valuable, and your
+gear has balanced stats. That means you should always take ilvl on rings, right?
+Well...</p>
+
+<p><img src="./results/ring_even.png" alt="Ring, Even" title="" /></p>
+
+<p>In <em>Legion,</em> you would have gone with ilvl in all but the most extreme cases.
+From BFA onward, though, it is often worth dropping ilvl (especially in later
+tiers). The only difference between <em>Battle for Azeroth</em> and <em>Shadowlands</em> is
+that taking items extremely skewed towards one stat stops being worth dropping
+ilvl for in later tiers.</p>
+
+<p><img src="./results/ring_skewed-slight_both.png" alt="Ring, Slight Skew Both" title="" /></p>
+
+<p>When you have skewed gear <em>and</em> slightly skewed secondaries, it becomes clear
+that the <em>BFA</em> changes were counterproductive and that the <em>Shadowlands</em> changes
+are not going to improve the situation. In fact: the only expansion where you'd
+still equip a +30 ilvl ring with your worst stats on it is <em>Legion.</em></p>
+
+<p>Let's take a moment to return to another time: 2015. Hellfire Citadel has
+released, and inside you can find rings that would seem out-of-place in modern
+WoW. Why? Well, they have primary stat on them. In fact, rings in Warlords (and
+possibly prior, this is hard to tell) were identically scaled to bracers now. As
+a result, we can check what the results look like for bracers and see how things
+would behave if the WoD change (removing mainstat from rings) were reverted:</p>
+
+<p><img src="./results/bracers_skewed-slight_both.png" alt="Bracers, Slight Skew Both" title="" /></p>
+
+<p>Keep in mind that the <em>Legion</em> section here is actually identical to <em>Warlords</em>
+ring scaling. This, in fact, is the behavior that Blizzard states they would
+like to see on gear now: it is always correct to equip ilvl upgrades, and never
+correct to equip ilvl downgrades. Further, this behavior holds <em>even when your
+stats are heavily skewed!</em></p>
+
+<p><img src="./results/bracers_skewed_both.png" alt="Bracers, Skew Both" title="" />
+<img src="./results/bracers_skewed_secondaries.png" alt="Bracers, Skew Weights" title="" /></p>
+
+<p>Interestingly, when you reduce the ilvl gap between items, the problem appears
+again under all models. Note that this only occurs in practice due to
+Warforging, which indicates that the frequency with which people dropped ilvls
+for better stats in <em>Legion</em> and <em>BFA</em> may, in fact, be a byproduct of the
+Warforging/Titanforging system giving use many items with small gaps between
+them.</p>
+
+<p><img src="./results/bracers_skewed-slight_both_reduced-penalty.png" alt="Bracers, Skew Both, Reduced Penalty Range" title="" /></p>
+
+<h2>Wrapping Up</h2>
+
+<p>There are two main points that I'd like to make with this post. First: if
+Blizzard wants to fix the ring problem, all they need to do is add mainstat to
+rings. In fact, we could go back to the system in Legion with much higher
+secondary values than we have now and still live in a world where you virtually
+never drop ilvl for stats <em>if</em> they put mainstat back on rings.</p>
+
+<p>Second---and more important, in my opinion---is that adding diminishing returns
+to secondary stats doesn't appear to solve a problem. It doesn't meaningfully
+change the decision-making process for evaluating gear. In fact, the only
+scenarios I can think of where the DRs would actually change things are: (1) a
+return of stat amp corruption (please, for the love of god, do <strong>not</strong> do
+this!), or (2) stacking items that give very large procs of single secondary
+stat.</p>
+
+<p>On the other hand, there are very real downsides to introducing yet another
+opaque system---especially after BFA introduced the awful K-scaling system for
+resetting tank power every tier. These opaque systems make it harder for players
+to understand <em>why</em> you should or should not equip an item. They make it harder
+for players to explore the game and how the different pieces interact---a key
+part (IMO) of the CRPG experience.</p>
+
+<p>Every time a new system is introduced that is described nowhere in game, that
+has no discernable impact unless you know what to look for, and that has
+potentially major impacts on player decisions should need <em>strong</em>
+justifications to be added to the game. I don't see how the secondary DR system
+satisfies these conditions, given that all it can really do (absent a return of
+corruption) is screw over people that equip two big stat proc trinkets.</p>
+
+<p>So, to end: I'd ask that this secondary DR system be scrapped entirely. Really,
+I'd like a return to the Legion system (with or without mainstat on rings). The
+slow crawl of secondary stat gain over the course of BFA was not fun, and
+combined with the hard resets on tank power every tier made the whole thing feel
+very same-y. As if I were still progressing Uldir when I was killing N'zoth.
+That seems out of scope for an expansion that launches in under two months, but
+perhaps could be part of 10.0.</p>
+
+<h2><em>Postscript</em></h2>
+
+<p>The code for the charts presented in this post can be found at on <a href="https://github.com/emallson/stat-scaling/">emallson's
+GitHub</a>. emallson is a theorycrafter
+for Brewmaster Monks, writes for Peak of Serenity, and maintains the WoWAnalyzer
+code for Brewmasters.</p>
+
+</body>
+</html>

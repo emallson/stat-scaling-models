@@ -70,3 +70,11 @@ for slot in SCALARS.keys():
                      slot,
                      penalties) + ggtitle(title_format.format(slot_names[slot],
                                                               'Your gear is skewed towards Crit/Haste, and Crit/Haste are worth *slightly* more than Mastery/Vers.'))).save(f'results/{slot}_skewed-slight_both.png')
+
+    (build_eval_plot(systems, ilvls,
+                     plot_should_you_equip,
+                    [1, 0.9, 0.8, 0.6],
+                    [0.35, 0.3, 0.2, 0.15],
+                     slot,
+                     [-10, -5, 0, 5, 10]) + ggtitle(title_format.format(slot_names[slot],
+                                                              'Your gear is skewed towards Crit/Haste, and Crit/Haste are worth *slightly* more than Mastery/Vers.'))).save(f'results/{slot}_skewed-slight_both_reduced-penalty.png')
