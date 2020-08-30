@@ -231,7 +231,10 @@ On the whole, I think that this system is likely to be a major step up from the
 *Battle for Azeroth* system. It may also be an improvement on the *Legion*
 system, and there is something to be said about preserving jewelry as a means to
 customize secondaries over the pre-*Legion* of jewelry simply being low-budget
-items like bracers. At this stage, I am mostly *curious* and want to see how
+items like bracers. I'm also happy that we're going to see much faster secondary
+growth, as the snails pace of secondary growth in *Battle for Azeroth* led to
+every tier feeling very same-y (though, as a tank, the resets on tank power
+certainly didn't help). At this stage, I am mostly *curious* and want to see how
 this plays out.
 
 ## *Postscript*
