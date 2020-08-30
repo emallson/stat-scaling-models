@@ -38,44 +38,35 @@ each secondary scaling model.</p>
 
 <h2>The Scaling Models</h2>
 
-<p>I considered three scaling models. Technically, there is a fourth (pre-Legion)
-that I could consider, which includes mainstat on jewelry. However, exact
-scaling data for that time period is had to get at this point so I have omitted
-it.</p>
+<p>I considered three scaling models, using data collected from the <code>simc</code> codebase
+to accurately model them.</p>
 
-<h3>The <em>Legion</em> Model</h3>
+<p>In terms of implementation, all three are basically identical: there is a
+<em>multiplier table</em> that attenuates an underlying exponential scaling formula.
+The specifics of the multiplier table control how quickly stats grow in each
+expansion.</p>
 
-<p>During <em>Legion,</em> secondary stats scaled using the exact same formula as primary
-stats. This is an <em>exponential</em> formula, resulting in rapid stat gains as ilvl
-increases (for example: from one tier to the next).</p>
+<p><img src="./points.png" alt="secondary rating on rings" title="" /></p>
 
-<p>Conceptually: with each ilvl increase you would gain an additional <em>percentage
-of your current stats.</em> As your stats increase, the gain from adding ilvl also
-increased.</p>
+<p>The above chart shows the amount of secondary rating on rings compared to the
+first tier. We can see that <em>Battle for Azeroth</em> is the slowest, with roughly
+<em>linear</em> growth of secondaries, with items from Ny'alotha having about 40%
+additional secondaries over Uldir items.</p>
 
-<h3>The <em>Battle for Azeroth</em> Model</h3>
+<p><em>Legion</em> (at least, after the 7.1 rescaling) is faster. The multipliers used
+leave a slight exponential curve in place, but it is heavily attenuated and only
+results in 60% stat growth after almost 100 ilvls.</p>
 
-<p>The change in <em>Battle for Azeroth</em> made secondary stats scale (approximately)
-linearly.</p>
+<p><em>Shadowlands</em> has a very clear change, with stats growing much, <em>much</em> faster
+than in BFA or post-7.1 Legion. However, <em>Shadowlands</em> also introduces
+diminishing returns on secondary stats, which are not reflected in this chart.
+Our concern is that these diminishing returns may lead to awkward gearing
+choices by introducing scenarios where it is correct to drop ilvl for "bad"
+status simply because they haven't yet hit the heavier diminishing returns.</p>
 
-<p>Conceptually, this means that with each ilvl increase you would gain a <em>fixed
-number of additional stats.</em> As your stats increase, the gain from adding ilvl
-stays constant.</p>
-
-<h3>The <em>Shadowlands</em> Model</h3>
-
-<p>The change in <em>Shadowlands</em> adds <em>diminishing returns</em> on top of the BFA model.</p>
-
-<p>Conceptually, this means that with each ilvl increase you gain a <em>fixed number
-of additional stats</em>---but if you put too many points in an individual stat, you
-effectively lose some of those points.</p>
-
-<p>With current tuning, at low ilvls this is basically equivalent to BFA: as your
-stats increase, the gain from adding ilvl stays constant. However, at higher
-ilvls it changes to: as your stats increase, the gain from adding ilvl
-<em>decreases.</em></p>
-
-<p>Part of this analysis is to give an idea of <em>when</em> that change occurs.</p>
+<p>This analysis is primarily concerned with answering one simple question: when
+looking at an item that has just dropped, should you equip it? What if it is an
+ilvl upgrade? or downgrade? Let's find out.</p>
 
 <h2>The Damage Model</h2>
 
@@ -126,7 +117,7 @@ gear.</p>
 <li>Calculate <code>Avg Damage</code> using those stats. This is the <em>baseline damage.</em></li>
 <li>Pick an ilvl and stat breakdown for a new item.</li>
 <li>Generate the stats for that item using the model.</li>
-<li>Calculate <code>Avg Damage</code> using the <em>base stats</em> plus the <em>item stats</em>. This is the <em>upgraded damage.</em></li>
+<li>Calculate <code>Avg Damage</code> using the <em>base stats</em> plus the <em>item stats</em> minus the stats of the old item in that slot. This is the <em>upgraded damage.</em></li>
 <li>Calculate the <em>value of the upgrade</em> with <code>upgraded damage - baseline damage</code></li>
 </ol>
 
@@ -141,10 +132,6 @@ stats.</p>
 <p>The main question we want to answer is this: should you equip an item that just
 dropped? The chart above shows when it is beneficial to equip an item that has
 dropped with various different ilvls and stat breakdowns.</p>
-
-<p>Obviously, <em>Legion</em> didn't have raid loot dropping between 385 and 475 and
-neither will <em>Shadowlands.</em> However, since the formulas for each model are known
-we can take the "what-if" scenario for a 4-tier expansion using BFA's ilvls.</p>
 
 <p>Note that <em>most</em> items in modern WoW have two stats on them. You'll get a
 Crit/Haste piece or a Mastery/Vers piece, and only rarely a pure-Crit or
@@ -169,15 +156,12 @@ skew on your stats, it is virtually never valuable to drop ilvl under any model.
 <p><img src="./results/main_skewed_both.png" alt="Chestpiece, Skewed Both" title="" /></p>
 
 <p>Interestingly, when you have heavily skewed secondary values but balanced stats,
-it <em>can</em> be worth dropping ilvl on main pieces---but only under the BFA and
-Shadowlands models.</p>
+it <em>can</em> be worth dropping ilvl on main pieces---but only under the BFA model
+and only in extreme cases.</p>
 
 <p><img src="./results/main_skewed_secondaries.png" alt="Chestpiece, Skewed Weights" title="" /></p>
 
-<p>Most specs won't have heavily skewed secondaries, though, and this effect
-dissappears with more typical skews.</p>
-
-<p>This pattern appears to remain constant on pieces that have mainstat (so:
+<p>This pattern of "ilvl > stats" appears to remain constant on pieces that have mainstat (so:
 everything but rings---we aren't touching trinkets here).</p>
 
 <h3>The Ring Problem</h3>
@@ -192,23 +176,27 @@ Well...</p>
 
 <p>In <em>Legion,</em> you would have gone with ilvl in all but the most extreme cases.
 From BFA onward, though, it is often worth dropping ilvl (especially in later
-tiers). The only difference between <em>Battle for Azeroth</em> and <em>Shadowlands</em> is
-that taking items extremely skewed towards one stat stops being worth dropping
-ilvl for in later tiers.</p>
+tiers). The changes in <em>Shadowlands</em> appear to fix this, with it virtually
+always being worthwhile to upgrade an item with a higher ilvl version.</p>
+
+<p>As an aside: <em>Shadowlands</em> appears to use 13 ilvls between difficulties instead
+of 15. That is not reflected in these charts, but the principle remains similar.</p>
 
 <p><img src="./results/ring_skewed-slight_both.png" alt="Ring, Slight Skew Both" title="" /></p>
 
 <p>When you have skewed gear <em>and</em> slightly skewed secondaries, it becomes clear
-that the <em>BFA</em> changes were counterproductive and that the <em>Shadowlands</em> changes
-are not going to improve the situation. In fact: the only expansion where you'd
-still equip a +30 ilvl ring with your worst stats on it is <em>Legion.</em></p>
+that the <em>BFA</em> changes were counterproductive---but that the <em>Shadowlands</em>
+changes actually improve the situation substantially even over the <em>Legion</em>
+model. In particular: in Legion it was worth dropping ilvl in to get your best
+stats, and worth skipping ilvl upgrades to avoid your worst stats. In <em>BFA,</em> the
+number of cases in which it was correct to drop ilvl for better stats increased.</p>
 
 <p>Let's take a moment to return to another time: 2015. Hellfire Citadel has
 released, and inside you can find rings that would seem out-of-place in modern
 WoW. Why? Well, they have primary stat on them. In fact, rings in Warlords (and
 possibly prior, this is hard to tell) were identically scaled to bracers now. As
 a result, we can check what the results look like for bracers and see how things
-would behave if the WoD change (removing mainstat from rings) were reverted:</p>
+would behave if the Legion change (removing mainstat from rings) were reverted:</p>
 
 <p><img src="./results/bracers_skewed-slight_both.png" alt="Bracers, Slight Skew Both" title="" /></p>
 
@@ -221,59 +209,60 @@ stats are heavily skewed!</em></p>
 <p><img src="./results/bracers_skewed_both.png" alt="Bracers, Skew Both" title="" />
 <img src="./results/bracers_skewed_secondaries.png" alt="Bracers, Skew Weights" title="" /></p>
 
-<p>Interestingly, when you reduce the ilvl gap between items, the problem appears
-again under all models. Note that this only occurs in practice due to
-Warforging, which indicates that the frequency with which people dropped ilvls
-for better stats in <em>Legion</em> and <em>BFA</em> may, in fact, be a byproduct of the
-Warforging/Titanforging system giving use many items with small gaps between
-them.</p>
+<p>Interestingly, when you reduce the ilvl gap between items the problem appears
+again under all models---though it is certainly least-bad in <em>Shadowlands</em>. Note
+that this only occurs in practice due to Warforging, which indicates that the
+frequency with which people dropped ilvls for better stats in <em>Legion</em> and <em>BFA</em>
+may, in fact, be a byproduct of the Warforging/Titanforging system giving us
+many items with small gaps between them.</p>
 
 <p><img src="./results/bracers_skewed-slight_both_reduced-penalty.png" alt="Bracers, Skew Both, Reduced Penalty Range" title="" /></p>
 
 <h2>Wrapping Up</h2>
 
-<p>There are two main points that I'd like to make with this post. First: if
-Blizzard wants to fix the ring problem, all they need to do is add mainstat to
-rings. In fact, we could go back to the system in Legion with much higher
-secondary values than we have now and still live in a world where you virtually
-never drop ilvl for stats <em>if</em> they put mainstat back on rings.</p>
+<p>While I had initially been quite skeptical about the value of the secondary DR
+system, this analysis has largely assuaged my concerns. Specifically, I was
+concerned about two things: (1) that this change may increase the situations
+where it was correct to ignore ilvl, and (2) that this might have awkward
+breakpoints where the answer to "should I ignore ilvl?" changed. Neither of
+these appear to be the case.</p>
 
-<p>Second---and more important, in my opinion---is that adding diminishing returns
-to secondary stats doesn't appear to solve a problem. It doesn't meaningfully
-change the decision-making process for evaluating gear. In fact, the only
-scenarios I can think of where the DRs would actually change things are: (1) a
-return of stat amp corruption (please, for the love of god, do <strong>not</strong> do
-this!), or (2) stacking items that give very large procs of single secondary
-stat.</p>
+<p>In additional, while I did not include information on which stats were "best"
+within each cell of the charts above, examination of the logs used to generate
+them reveals that the DRs are not severe enough to devalue the secondaries your
+spec might naturally want. That is: if Crit and Haste are good stats for you,
+they remain good stats even with the presence of DRs.</p>
 
-<p>On the other hand, there are very real downsides to introducing yet another
-opaque system---especially after BFA introduced the awful K-scaling system for
-resetting tank power every tier. These opaque systems make it harder for players
-to understand <em>why</em> you should or should not equip an item. They make it harder
-for players to explore the game and how the different pieces interact---a key
-part (IMO) of the CRPG experience.</p>
+<p>That said: I am still somewhat concerned about the introduction of yet another
+opaque system to the game. <em>Battle for Azeroth</em> introduced another, similar
+opaque system: defensive scaling (i.e. armor, block, Stagger) getting reset
+every tier by the increase of an underlying constant (<code>K</code>). This system has been
+frustrating not from a theory PoV, but from that of a player. However, the
+effects of that system (resetting tank power every tier, which honestly sucks)
+are quite different from the apparent effects of this system.</p>
 
-<p>Every time a new system is introduced that is described nowhere in game, that
-has no discernable impact unless you know what to look for, and that has
-potentially major impacts on player decisions should need <em>strong</em>
-justifications to be added to the game. I don't see how the secondary DR system
-satisfies these conditions, given that all it can really do (absent a return of
-corruption) is screw over people that equip two big stat proc trinkets.</p>
+<p>Nonetheless, it would be a huge boon for the community if the design team were
+more open both about the changes they make to underlying systems and the goals
+they hope to achieve in making said changes.</p>
 
-<p>So, to end: I'd ask that this secondary DR system be scrapped entirely. Really,
-I'd like a return to the Legion system (with or without mainstat on rings). The
-slow crawl of secondary stat gain over the course of BFA was not fun, and
-combined with the hard resets on tank power every tier made the whole thing feel
-very same-y. As if I were still progressing Uldir when I was killing N'zoth.
-That seems out of scope for an expansion that launches in under two months, but
-perhaps could be part of 10.0.</p>
+<p>On the whole, I think that this system is likely to be a major step up from the
+<em>Battle for Azeroth</em> system. It may also be an improvement on the <em>Legion</em>
+system, and there is something to be said about preserving jewelry as a means to
+customize secondaries over the pre-<em>Legion</em> of jewelry simply being low-budget
+items like bracers. I'm also happy that we're going to see much faster secondary
+growth, as the snails pace of secondary growth in <em>Battle for Azeroth</em> led to
+every tier feeling very same-y (though, as a tank, the resets on tank power
+certainly didn't help). At this stage, I am mostly <em>curious</em> and want to see how
+this plays out.</p>
 
 <h2><em>Postscript</em></h2>
 
-<p>The code for the charts presented in this post can be found at on <a href="https://github.com/emallson/stat-scaling/">emallson's
-GitHub</a>. emallson is a theorycrafter
-for Brewmaster Monks, writes for Peak of Serenity, and maintains the WoWAnalyzer
-code for Brewmasters.</p>
+<p>The code for the charts presented in this post can be found at on <a href="https://github.com/emallson/stat-scaling-models">emallson's
+GitHub</a>. emallson is a
+theorycrafter for Brewmaster Monks, writes for Peak of Serenity, and maintains
+the WoWAnalyzer code for Brewmasters. emallson is currently wearing a 440 ring
+from <em>Battle of Dazar'alor</em> in his main set, with multiple 475 rings rotting in
+his bags.</p>
 
 </body>
 </html>
