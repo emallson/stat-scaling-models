@@ -1,5 +1,6 @@
-from plotnine import ggplot, aes, geom_bar, facet_grid, theme_538, xlab, ylab, geom_hline, geom_bin2d, theme, scale_x_discrete
+from plotnine import ggplot, aes, geom_bar, facet_grid, theme_538, xlab, ylab, geom_hline, geom_bin2d, theme, scale_x_discrete, geom_line, facet_wrap
 from scaling.eval import evaluate_point
+import numpy as np
 import pandas as pd
 
 
@@ -133,13 +134,28 @@ def plot_should_you_equip(eval_results):
         theme(figure_size=(14, 5))
 
 
-def build_eval_plot(systems, ilvls, plotter, *args):
+def build_eval_plot(systems, plotter, *args):
     results = []
-    for ilvl in ilvls:
-        for name, system in systems.items():
+    for name, system in systems.items():
+        for ilvl in system[0].ILVLS:
             res = evaluate_point(*system, ilvl, *args)
             res['system'] = name
             res['ilvl'] = ilvl
             results += [res]
     results = pd.concat(results)
     return plotter(results)
+
+def plot_jewelry_points(systems):
+    dfs = []
+    for name, system in systems.items():
+        ilvls = np.arange(system.ILVLS[0], system.ILVLS[-1])
+        points = [system.points('jewelry', ilvl, [1, 0, 0, 0], 1)[1][0] for ilvl in ilvls]
+
+        df = pd.Series(ilvls, name='ilvls').to_frame()
+        df['points'] = points
+        df['points'] = points / df['points'].min()
+        df['model'] = name
+        dfs.append(df)
+
+    df = pd.concat(dfs)
+    return ggplot(df, aes('ilvls', 'points')) + geom_line() + facet_wrap('~ model', scales='free_x') + xlab('ilvl') + ylab('Secondary Rating Relative to First Tier')
