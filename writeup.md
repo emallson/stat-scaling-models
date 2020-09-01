@@ -158,8 +158,9 @@ Well...
 
 In *Legion,* you would have gone with ilvl in all but the most extreme cases.
 From BFA onward, though, it is often worth dropping ilvl (especially in later
-tiers). The changes in *Shadowlands* appear to fix this, with it virtually
-always being worthwhile to upgrade an item with a higher ilvl version.
+tiers). The changes in *Shadowlands* appear to fix this outside of extreme
+cases, with it virtually always being worthwhile to upgrade an item with a
+higher ilvl version.
 
 As an aside: *Shadowlands* appears to use 13 ilvls between difficulties instead
 of 15. That is not reflected in these charts, but the principle remains similar.
@@ -168,10 +169,13 @@ of 15. That is not reflected in these charts, but the principle remains similar.
 
 When you have skewed gear *and* slightly skewed secondaries, it becomes clear
 that the *BFA* changes were counterproductive---but that the *Shadowlands*
-changes actually improve the situation substantially even over the *Legion*
+changes actually improve the situation even over the *Legion*
 model. In particular: in Legion it was worth dropping ilvl in to get your best
 stats, and worth skipping ilvl upgrades to avoid your worst stats. In *BFA,* the
 number of cases in which it was correct to drop ilvl for better stats increased.
+In *Shadowlands,* the number of situations decreases even relative to
+*Legion*---though it is *never* worth picking up an item with only your worst
+stats under any model.
 
 Let's take a moment to return to another time: 2015. Hellfire Citadel has
 released, and inside you can find rings that would seem out-of-place in modern
@@ -230,12 +234,12 @@ they hope to achieve in making said changes.
 On the whole, I think that this system is likely to be a major step up from the
 *Battle for Azeroth* system. It may also be an improvement on the *Legion*
 system, and there is something to be said about preserving jewelry as a means to
-customize secondaries over the pre-*Legion* of jewelry simply being low-budget
-items like bracers. I'm also happy that we're going to see much faster secondary
-growth, as the snails pace of secondary growth in *Battle for Azeroth* led to
-every tier feeling very same-y (though, as a tank, the resets on tank power
-certainly didn't help). At this stage, I am mostly *curious* and want to see how
-this plays out.
+customize secondaries regardless of ilvl over the pre-*Legion* model of jewelry
+simply being low-budget items like bracers. I'm also happy that we're going to
+see much faster secondary growth, as the snails pace of secondary growth in
+*Battle for Azeroth* led to every tier feeling very same-y (though, as a tank,
+the resets on tank power certainly didn't help). At this stage, I am mostly
+*curious* and want to see how this plays out.
 
 ## *Postscript*
 

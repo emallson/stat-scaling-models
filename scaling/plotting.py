@@ -145,6 +145,7 @@ def build_eval_plot(systems, plotter, *args):
     results = pd.concat(results)
     return plotter(results)
 
+
 def plot_jewelry_points(systems):
     dfs = []
     for name, system in systems.items():
@@ -153,9 +154,33 @@ def plot_jewelry_points(systems):
 
         df = pd.Series(ilvls, name='ilvls').to_frame()
         df['points'] = points
-        df['points'] = points / df['points'].min()
+        df['points'] = df['points'] / df['points'].min()
         df['model'] = name
         dfs.append(df)
 
     df = pd.concat(dfs)
     return ggplot(df, aes('ilvls', 'points')) + geom_line() + facet_wrap('~ model', scales='free_x') + xlab('ilvl') + ylab('Secondary Rating Relative to First Tier')
+
+
+def plot_jewelry_rand_prop(systems):
+    def scale_reference(points, base, ilvl):
+        gap = ilvl - base
+        return points[base - 1] * 1.15 ** (gap / 15)
+
+    dfs = []
+    for name, system in systems.items():
+        ilvls = np.arange(system.ILVLS[0], system.ILVLS[-1])
+        points = [system.RAND_PROP_POINTS[ilvl-1] for ilvl in ilvls]
+
+        ref = [scale_reference(system.RAND_PROP_POINTS, ilvls[0], ilvl) for ilvl in ilvls]
+
+        df = pd.Series(ilvls, name='ilvls').to_frame()
+        df['points'] = points
+        df['points'] = df['points'] / df['points'].min()
+        df['ref'] = ref
+        df['ref'] = df['ref'] / df['ref'].min()
+        df['model'] = name
+        dfs.append(df)
+
+    df = pd.concat(dfs)
+    return ggplot(df, aes('ilvls', 'points')) + geom_line() + geom_line(aes(y='ref'), color='red') + facet_wrap('~ model', scales='free_x') + xlab('ilvl') + ylab('Random Property Points Relative to First Tier')
