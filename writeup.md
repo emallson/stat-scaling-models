@@ -42,11 +42,12 @@ leave a slight exponential curve in place, but it is heavily attenuated and only
 results in 60% stat growth after almost 100 ilvls.
 
 *Shadowlands* has a very clear change, with stats growing much, *much* faster
-than in BFA or post-7.1 Legion. However, *Shadowlands* also introduces
-diminishing returns on secondary stats, which are not reflected in this chart.
-Our concern is that these diminishing returns may lead to awkward gearing
-choices by introducing scenarios where it is correct to drop ilvl for "bad"
-status simply because they haven't yet hit the heavier diminishing returns.
+than in BFA. It is (roughly) a linearized version of the post-7.1 *Legion*
+scaling. However, *Shadowlands* also introduces diminishing returns on secondary
+stats, which are not reflected in this chart.  Our concern is that these
+diminishing returns may lead to awkward gearing choices by introducing scenarios
+where it is correct to drop ilvl for "bad" status simply because they haven't
+yet hit the heavier diminishing returns.
 
 This analysis is primarily concerned with answering one simple question: when
 looking at an item that has just dropped, should you equip it? What if it is an
